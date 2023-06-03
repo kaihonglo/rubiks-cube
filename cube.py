@@ -1,21 +1,25 @@
 class RubiksCube:
-    def __init__(self):
-        # self.faces = {
-        #     'U': ['⬜', '⬜', '⬜', '⬜', '⬜', '⬜', '⬜', '⬜', '⬜'],
-        #     'D': ['🟨', '🟨', '🟨', '🟨', '🟨', '🟨', '🟨', '🟨', '🟨'],
-        #     'F': ['🟥', '🟥', '🟥', '🟥', '🟥', '🟥', '🟥', '🟥', '🟥'],
-        #     'B': ['🟧', '🟧', '🟧', '🟧', '🟧', '🟧', '🟧', '🟧', '🟧'],
-        #     'L': ['🟩', '🟩', '🟩', '🟩', '🟩', '🟩', '🟩', '🟩', '🟩'],
-        #     'R': ['🟦', '🟦', '🟦', '🟦', '🟦', '🟦', '🟦', '🟦', '🟦']
-        # }
-        self.faces = {
-            'U': ['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7', 'w8', 'w9'],
-            'D': ['y1', 'y2', 'y3', 'y4', 'y5', 'y6', 'y7', 'y8', 'y9'],
-            'L': ['r1', 'r2', 'r3', 'r4', 'r5', 'r6', 'r7', 'r8', 'r9'],
-            'R': ['o1', 'o2', 'o3', 'o4', 'o5', 'o6', 'o7', 'o8', 'o9'],
-            'F': ['g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8', 'g9'],
-            'B': ['b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'b9']
-        }
+    def __init__(self, initial_state = None):
+        if initial_state:
+            # Split the string into sets of 9
+            sets = [initial_state[i:i+9] for i in range(0, len(initial_state), 9)]
+
+            # Update self.faces dictionary
+            self.faces['U'] = list(sets[0])
+            self.faces['D'] = list(sets[1])
+            self.faces['L'] = list(sets[2])
+            self.faces['R'] = list(sets[3])
+            self.faces['F'] = list(sets[4])
+            self.faces['B'] = list(sets[5])
+        else:
+            self.faces = {
+                'U': ['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7', 'w8', 'w9'],
+                'D': ['y1', 'y2', 'y3', 'y4', 'y5', 'y6', 'y7', 'y8', 'y9'],
+                'L': ['r1', 'r2', 'r3', 'r4', 'r5', 'r6', 'r7', 'r8', 'r9'],
+                'R': ['o1', 'o2', 'o3', 'o4', 'o5', 'o6', 'o7', 'o8', 'o9'],
+                'F': ['g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8', 'g9'],
+                'B': ['b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'b9']
+            }
         
     def display_cube(self):
         # Display the Up face   
@@ -344,6 +348,50 @@ class RubiksCube:
         [self.Z() for _ in range(2)]     
 
 
+def CrossSearch():
+    def __init__(self, cube):
+        self.cube = cube
+        move_white_center_to_bottom(self.cube)
+        
+
+    def move_white_center_to_bottom(cube):
+        # Find the face of the white center piece
+        white_center_face = None
+        for face, stickers in cube.faces.items():
+            if 'w' in stickers[5]:
+                white_center_face = face
+                break
+
+        # Rotate the cube according to the face of the white center piece
+        switch = {
+            'U': cube.X2,
+            'D': lambda: None,  # No rotation needed
+            'L': cube.Zi,
+            'R': cube.Z,
+            'F': cube.Xi,
+            'B': cube.X
+        }
+
+        # Call the corresponding function based on the white center face
+        switch.get(white_center_face, lambda: None)()
+
+
+
+    # def possible_actions(self, state):
+                    
+    # def successor(self, state, action):
+        
+
+
+    # def goal_test(self, state):
+    #     # Check if all cross edge pieces are correctly placed
+    #     cross_edges = [('U', 1), ('U', 3), ('U', 5), ('U', 7)]
+    #     return all(state[edge[0]][edge[1]] == 'w' for edge in cross_edges)
+
+    # def display_action( self, action ):
+
+
+    # def display_state( self, state ):
 
 
 if __name__ == "__main__":
