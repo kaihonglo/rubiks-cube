@@ -311,47 +311,84 @@ class RubiksCube:
     """
     Whole cube rotations
     """     
-    def X(self):
+    def x(self):
         self.li()
         self.R()
 
-    def Xi(self):
+    def xi(self):
         self.l()
         self.Ri()
         
-    def Y(self):
+    def y(self):
         self.u()
         self.Di()
 
-    def Yi(self):
+    def yi(self):
         self.ui()
         self.D()
         
-    def Z(self):
+    def z(self):
         self.f()
         self.Bi()        
         
-    def Zi(self):
+    def zi(self):
         self.fi()
         self.B()
 
     """
     Double whole cube rotations
     """     
-    def X2(self):
+    def x2(self):
         [self.X() for _ in range(2)]
         
-    def Y2(self):
+    def y2(self):
         [self.Y() for _ in range(2)]
         
-    def Z2(self):
+    def z2(self):
         [self.Z() for _ in range(2)]     
+        
+    def execute(self, moves):
+        move_actions = {
+            'F': self.F,
+            'U': self.U,
+            'R': self.R,
+            'L': self.L,
+            'B': self.B,
+            'D': self.D,
+            'f': self.f,
+            'u': self.u,
+            'r': self.r,
+            'l': self.l,
+            'b': self.b,
+            'd': self.d,
+            'M': self.M,
+            'E': self.E,
+            'S': self.S,
+            'x': self.X,
+            'y': self.Y,
+            'z': self.Z,
+        }
+        
+        for i, move in enumerate(moves):
+            if move == "i":
+                action = move_actions.get(moves[i-1])
+                action()
+                action()
+            elif move == "2":
+                action = move_actions.get(moves[i-1])
+                action()
+                action()
+            else:
+                action = move_actions.get(move)
+                action()
+                    
 
 
-def CrossSearch():
+
+class CrossSearch():
     def __init__(self, cube):
         self.cube = cube
-        move_white_center_to_bottom(self.cube)
+        self.move_white_center_to_bottom(self.cube)
         
 
     def move_white_center_to_bottom(cube):
@@ -364,12 +401,12 @@ def CrossSearch():
 
         # Rotate the cube according to the face of the white center piece
         switch = {
-            'U': cube.X2,
+            'U': cube.x2,
             'D': lambda: None,  # No rotation needed
-            'L': cube.Zi,
-            'R': cube.Z,
-            'F': cube.Xi,
-            'B': cube.X
+            'L': cube.zi,
+            'R': cube.z,
+            'F': cube.xi,
+            'B': cube.x
         }
 
         # Call the corresponding function based on the white center face
@@ -377,16 +414,93 @@ def CrossSearch():
 
 
 
-    # def possible_actions(self, state):
+    def possible_actions(self, state):
+        # Define the possible actions that can be applied to the Rubik's Cube state
+        actions = []
+
+        # Clockwise Face Rotations
+        actions.append('U')
+        actions.append('D')
+        actions.append('L')
+        actions.append('R')
+        actions.append('F')
+        actions.append('B')
+
+        # Slice Turns
+        actions.append('M')
+        actions.append('E')
+        actions.append('S')
+
+        # Anti-clockwise Face Rotations
+        actions.append('Ui')
+        actions.append('Di')
+        actions.append('Li')
+        actions.append('Ri')
+        actions.append('Fi')
+        actions.append('Bi')
+
+        # Anti-clockwise Slice Turns
+        actions.append('Mi')
+        actions.append('Ei')
+        actions.append('Si')
+
+        # Double turns
+        actions.append('L2')
+        actions.append('R2')
+        actions.append('F2')
+        actions.append('B2')
+        actions.append('M2')
+        actions.append('E2')
+        actions.append('S2')
+
+        # Double layer turns
+        actions.append('u')
+        actions.append('d')
+        actions.append('l')
+        actions.append('r')
+        actions.append('f')
+        actions.append('b')
+
+        # Inverse double layer turns
+        actions.append('ui')
+        actions.append('di')
+        actions.append('li')
+        actions.append('ri')
+        actions.append('fi')
+        actions.append('bi')
+
+        # 2x double layer turns
+        actions.append('u2')
+        actions.append('d2')
+        actions.append('l2')
+        actions.append('r2')
+        actions.append('f2')
+        actions.append('b2')
+
+        # Whole cube rotations
+        actions.append('x')
+        actions.append('xi')
+        actions.append('y')
+        actions.append('yi')
+        actions.append('z')
+        actions.append('zi')
+
+        # Double whole cube rotations
+        actions.append('x2')
+        actions.append('y2')
+        actions.append('z2')
+
+        return actions
                     
     # def successor(self, state, action):
         
 
 
-    # def goal_test(self, state):
-    #     # Check if all cross edge pieces are correctly placed
-    #     cross_edges = [('U', 1), ('U', 3), ('U', 5), ('U', 7)]
-    #     return all(state[edge[0]][edge[1]] == 'w' for edge in cross_edges)
+    def goal_test(self, cube):
+        # Check if all cross edge pieces are correctly placed
+        bottom_edge = [('D', 1), ('D', 3), ('D', 5), ('D', 7)]
+        side_edge = [('F', 7), ('L', 7), ('R', 7), ('7', 7)]
+        return all(cube.faces[bottom_edge[i][0]][bottom_edge[i][1]] == cube.faces[side_edge[i][0]][side_edge[i][1]] for i,_ in enumerate(bottom_edge))
 
     # def display_action( self, action ):
 
@@ -395,13 +509,11 @@ def CrossSearch():
 
 
 if __name__ == "__main__":
-    # Example usage:
     cube = RubiksCube()
-    # cube.display_cube()
-    # cube.S()
     cube.display_cube()
     cube.display_cube2()
-    # cube.Ri()
-    # cube.display_cube()
+    
+    
+
     
 
