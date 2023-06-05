@@ -1,3 +1,4 @@
+from copy import deepcopy
 class RubiksCube:
     def __init__(self, initial_state = None):
         if initial_state:
@@ -20,6 +21,8 @@ class RubiksCube:
                 'F': ['g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8', 'g9'],
                 'B': ['b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'b9']
             }
+    
+    
         
     def display_cube(self):
         # Display the Up face   
@@ -384,7 +387,7 @@ class RubiksCube:
                     
 
 
-
+    
 class CrossSearch():
     def __init__(self, cube):
         self.cube = cube
@@ -413,8 +416,14 @@ class CrossSearch():
         switch.get(white_center_face, lambda: None)()
 
 
-
-    def possible_actions(self, state):
+    def heuristic(self, state):
+        # Calculate the count of misplaced edges
+        bottom_edge = [('D', 1), ('D', 3), ('D', 5), ('D', 7)]
+        side_edge = [('F', 7), ('L', 7), ('R', 7), ('7', 7)]
+        misplaced_edges_count = sum(state.faces[bottom_edge[i][0]][bottom_edge[i][1]] != state.faces[side_edge[i][0]][side_edge[i][1]] for i, _ in enumerate(bottom_edge))
+        return misplaced_edges_count
+    
+    def possible_actions(self, cube):
         # Define the possible actions that can be applied to the Rubik's Cube state
         actions = []
 
@@ -492,20 +501,21 @@ class CrossSearch():
 
         return actions
                     
-    # def successor(self, state, action):
+    def successor(self, cube, action):
+        # Make a copy of the current cube to avoid modifying it directly
+        new_cube = deepcopy(cube)
+
+        # Execute the action using the execute function
+        new_cube.execute(action)
+
+        return new_cube
         
-
-
     def goal_test(self, cube):
         # Check if all cross edge pieces are correctly placed
         bottom_edge = [('D', 1), ('D', 3), ('D', 5), ('D', 7)]
         side_edge = [('F', 7), ('L', 7), ('R', 7), ('7', 7)]
         return all(cube.faces[bottom_edge[i][0]][bottom_edge[i][1]] == cube.faces[side_edge[i][0]][side_edge[i][1]] for i,_ in enumerate(bottom_edge))
 
-    # def display_action( self, action ):
-
-
-    # def display_state( self, state ):
 
 
 if __name__ == "__main__":
