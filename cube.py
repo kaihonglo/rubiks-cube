@@ -1,6 +1,7 @@
 from copy import deepcopy
 class RubiksCube:
     def __init__(self, initial_state = None):
+        self.faces = {}
         if initial_state:
             # Split the string into sets of 9
             sets = [initial_state[i:i+9] for i in range(0, len(initial_state), 9)]
@@ -14,16 +15,14 @@ class RubiksCube:
             self.faces['B'] = list(sets[5])
         else:
             self.faces = {
-                'U': ['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7', 'w8', 'w9'],
-                'D': ['y1', 'y2', 'y3', 'y4', 'y5', 'y6', 'y7', 'y8', 'y9'],
-                'L': ['r1', 'r2', 'r3', 'r4', 'r5', 'r6', 'r7', 'r8', 'r9'],
-                'R': ['o1', 'o2', 'o3', 'o4', 'o5', 'o6', 'o7', 'o8', 'o9'],
-                'F': ['g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8', 'g9'],
-                'B': ['b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'b9']
+                'U': ['o1', 'o2', 'o3', 'o4', 'o5', 'o6', 'o7', 'o8', 'o9'],
+                'D': ['r1', 'r2', 'r3', 'r4', 'r5', 'r6', 'r7', 'r8', 'r9'],
+                'L': ['g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8', 'g9'],
+                'R': ['b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'b9'],
+                'F': ['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7', 'w8', 'w9'],
+                'B': ['y1', 'y2', 'y3', 'y4', 'y5', 'y6', 'y7', 'y8', 'y9'],
             }
-    
-    
-        
+            
     def display_cube(self):
         # Display the Up face   
         print('         ' + ' '.join(self.faces['U'][0:3]))
@@ -45,21 +44,27 @@ class RubiksCube:
             'w1': '⬜', 'w2': '⬜', 'w3': '⬜',
             'w4': '⬜', 'w5': '⬜', 'w6': '⬜',
             'w7': '⬜', 'w8': '⬜', 'w9': '⬜',
-            'r1': '🟩', 'r2': '🟩', 'r3': '🟩',
-            'r4': '🟩', 'r5': '🟩', 'r6': '🟩',
-            'r7': '🟩', 'r8': '🟩', 'r9': '🟩',
-            'g1': '🟥', 'g2': '🟥', 'g3': '🟥',
-            'g4': '🟥', 'g5': '🟥', 'g6': '🟥',
-            'g7': '🟥', 'g8': '🟥', 'g9': '🟥',
-            'o1': '🟦', 'o2': '🟦', 'o3': '🟦',
-            'o4': '🟦', 'o5': '🟦', 'o6': '🟦',
-            'o7': '🟦', 'o8': '🟦', 'o9': '🟦',
-            'b1': '🟧', 'b2': '🟧', 'b3': '🟧',
-            'b4': '🟧', 'b5': '🟧', 'b6': '🟧',
-            'b7': '🟧', 'b8': '🟧', 'b9': '🟧',
+            'r1': '🟥', 'r2': '🟥', 'r3': '🟥',
+            'r4': '🟥', 'r5': '🟥', 'r6': '🟥',
+            'r7': '🟥', 'r8': '🟥', 'r9': '🟥',
+            'g1': '🟩', 'g2': '🟩', 'g3': '🟩',
+            'g4': '🟩', 'g5': '🟩', 'g6': '🟩',
+            'g7': '🟩', 'g8': '🟩', 'g9': '🟩',
+            'o1': '🟧', 'o2': '🟧', 'o3': '🟧',
+            'o4': '🟧', 'o5': '🟧', 'o6': '🟧',
+            'o7': '🟧', 'o8': '🟧', 'o9': '🟧',
+            'b1': '🟦', 'b2': '🟦', 'b3': '🟦',
+            'b4': '🟦', 'b5': '🟦', 'b6': '🟦',
+            'b7': '🟦', 'b8': '🟦', 'b9': '🟦',
             'y1': '🟨', 'y2': '🟨', 'y3': '🟨',
             'y4': '🟨', 'y5': '🟨', 'y6': '🟨',
-            'y7': '🟨', 'y8': '🟨', 'y9': '🟨'
+            'y7': '🟨', 'y8': '🟨', 'y9': '🟨',
+            'w': '⬜',
+            'r': '🟥', 
+            'g': '🟩', 
+            'o': '🟧', 
+            'b': '🟦', 
+            'y': '🟨', 
         }
 
         # Display the Up face
@@ -119,7 +124,7 @@ class RubiksCube:
 
         # Update adjacent faces (U, F, D, B)
         self.faces['U'][0:9:3], self.faces['F'][0:9:3], self.faces['D'][0:9:3], self.faces['B'][2:9:3] = \
-            self.faces['B'][2:9:3], self.faces['U'][0:9:3], self.faces['F'][0:9:3], self.faces['D'][0:9:3]
+            self.faces['B'][2:9:3][::-1], self.faces['U'][0:9:3], self.faces['F'][0:9:3], self.faces['D'][0:9:3][::-1]
             
     def R(self):
         # Rotate the Right face clockwise
@@ -129,7 +134,7 @@ class RubiksCube:
 
         # Update adjacent faces (U, F, D, B)
         self.faces['U'][2:9:3], self.faces['F'][2:9:3], self.faces['D'][2:9:3], self.faces['B'][0:9:3] = \
-            self.faces['F'][2:9:3], self.faces['D'][2:9:3], self.faces['B'][0:9:3], self.faces['U'][2:9:3]
+            self.faces['F'][2:9:3], self.faces['D'][2:9:3], self.faces['B'][0:9:3][::-1], self.faces['U'][2:9:3][::-1]
 
     def F(self):
         # Rotate the Front face clockwise
@@ -149,14 +154,14 @@ class RubiksCube:
 
         # Update adjacent faces (U, R, D, L)
         self.faces['U'][0:3], self.faces['R'][2:9:3], self.faces['D'][6:9], self.faces['L'][0:9:3] = \
-            self.faces['R'][2:9:3], self.faces['D'][6:9], self.faces['L'][0:9:3], self.faces['U'][0:3][::-1]
+            self.faces['R'][2:9:3], self.faces['D'][6:9][::-1], self.faces['L'][0:9:3], self.faces['U'][0:3][::-1]
 
     """
     Slice Turns
     """
     def M(self):
         self.faces['F'][1:9:3], self.faces['U'][1:9:3], self.faces['B'][1:9:3], self.faces['D'][1:9:3] = \
-            self.faces['U'][1:9:3], self.faces['B'][1:9:3], self.faces['D'][1:9:3], self.faces['F'][1:9:3]
+            self.faces['U'][1:9:3], self.faces['B'][1:9:3][::-1], self.faces['D'][1:9:3][::-1], self.faces['F'][1:9:3]
     
     def E(self):
         self.faces['L'][3:6], self.faces['B'][3:6], self.faces['R'][3:6], self.faces['F'][3:6] = \
@@ -351,6 +356,7 @@ class RubiksCube:
         [self.Z() for _ in range(2)]     
         
     def execute(self, moves):
+        moves = self.reformat_moves(moves)
         move_actions = {
             'F': self.F,
             'U': self.U,
@@ -367,9 +373,9 @@ class RubiksCube:
             'M': self.M,
             'E': self.E,
             'S': self.S,
-            'x': self.X,
-            'y': self.Y,
-            'z': self.Z,
+            'x': self.x,
+            'y': self.y,
+            'z': self.z,
         }
         
         for i, move in enumerate(moves):
@@ -380,11 +386,13 @@ class RubiksCube:
             elif move == "2":
                 action = move_actions.get(moves[i-1])
                 action()
-                action()
             else:
                 action = move_actions.get(move)
                 action()
                     
+    def reformat_moves(self, moves):
+        reformatted = moves.replace(" ", "").replace("'", "i")
+        return reformatted
 
 
     
@@ -453,14 +461,14 @@ class CrossSearch():
         actions.append('Ei')
         actions.append('Si')
 
-        # Double turns
-        actions.append('L2')
-        actions.append('R2')
-        actions.append('F2')
-        actions.append('B2')
-        actions.append('M2')
-        actions.append('E2')
-        actions.append('S2')
+        # # Double turns
+        # actions.append('L2')
+        # actions.append('R2')
+        # actions.append('F2')
+        # actions.append('B2')
+        # actions.append('M2')
+        # actions.append('E2')
+        # actions.append('S2')
 
         # Double layer turns
         actions.append('u')
@@ -478,13 +486,13 @@ class CrossSearch():
         actions.append('fi')
         actions.append('bi')
 
-        # 2x double layer turns
-        actions.append('u2')
-        actions.append('d2')
-        actions.append('l2')
-        actions.append('r2')
-        actions.append('f2')
-        actions.append('b2')
+        # # 2x double layer turns
+        # actions.append('u2')
+        # actions.append('d2')
+        # actions.append('l2')
+        # actions.append('r2')
+        # actions.append('f2')
+        # actions.append('b2')
 
         # Whole cube rotations
         actions.append('x')
@@ -494,10 +502,10 @@ class CrossSearch():
         actions.append('z')
         actions.append('zi')
 
-        # Double whole cube rotations
-        actions.append('x2')
-        actions.append('y2')
-        actions.append('z2')
+        # # Double whole cube rotations
+        # actions.append('x2')
+        # actions.append('y2')
+        # actions.append('z2')
 
         return actions
                     
@@ -509,6 +517,10 @@ class CrossSearch():
         new_cube.execute(action)
 
         return new_cube
+
+    def cost_function(self, state, action):
+        # All actions have equal cost in this case
+        return 1
         
     def goal_test(self, cube):
         # Check if all cross edge pieces are correctly placed
@@ -516,12 +528,43 @@ class CrossSearch():
         side_edge = [('F', 7), ('L', 7), ('R', 7), ('7', 7)]
         return all(cube.faces[bottom_edge[i][0]][bottom_edge[i][1]] == cube.faces[side_edge[i][0]][side_edge[i][1]] for i,_ in enumerate(bottom_edge))
 
+    def iterativeDeepening(self):
+        depth = 0
+        result = None
+        while result is None:
+            result = self.depthLimited(self.cube, depth)
+            depth += 1
+        return result
+
+    def depthLimited(self, state, depth):
+        stack = []
+        stack.append(state)
+        while stack:
+            current_state = stack.pop()
+
+            if self.goal_test(current_state):
+                return current_state
+
+            if current_state.depth < depth:
+                actions = self.possible_actions(current_state)
+                for action in actions:
+                    new_state = self.successor(current_state, action)
+                    stack.append(new_state)
+
+        return None
 
 
 if __name__ == "__main__":
     cube = RubiksCube()
+    cube.display_cube2()
+    cube.execute("B2 D2 B D2 U' B' L R' D U2 L2 U L B F'")
     cube.display_cube()
     cube.display_cube2()
+    
+    # search = CrossSearch(cube)
+
+    # solution = search.iterativeDeepening()
+    # cube.display_cube2()
     
     
 
