@@ -402,11 +402,11 @@ class CrossSearch():
         self.move_white_center_to_bottom(self.cube)
         
 
-    def move_white_center_to_bottom(cube):
+    def move_white_center_to_bottom(self, cube):
         # Find the face of the white center piece
         white_center_face = None
         for face, stickers in cube.faces.items():
-            if 'w' in stickers[5]:
+            if 'w' in stickers[4]:
                 white_center_face = face
                 break
 
@@ -443,11 +443,6 @@ class CrossSearch():
         actions.append('F')
         actions.append('B')
 
-        # Slice Turns
-        actions.append('M')
-        actions.append('E')
-        actions.append('S')
-
         # Anti-clockwise Face Rotations
         actions.append('Ui')
         actions.append('Di')
@@ -456,63 +451,13 @@ class CrossSearch():
         actions.append('Fi')
         actions.append('Bi')
 
-        # Anti-clockwise Slice Turns
-        actions.append('Mi')
-        actions.append('Ei')
-        actions.append('Si')
-
-        # # Double turns
-        # actions.append('L2')
-        # actions.append('R2')
-        # actions.append('F2')
-        # actions.append('B2')
-        # actions.append('M2')
-        # actions.append('E2')
-        # actions.append('S2')
-
-        # Double layer turns
-        actions.append('u')
-        actions.append('d')
-        actions.append('l')
-        actions.append('r')
-        actions.append('f')
-        actions.append('b')
-
-        # Inverse double layer turns
-        actions.append('ui')
-        actions.append('di')
-        actions.append('li')
-        actions.append('ri')
-        actions.append('fi')
-        actions.append('bi')
-
-        # # 2x double layer turns
-        # actions.append('u2')
-        # actions.append('d2')
-        # actions.append('l2')
-        # actions.append('r2')
-        # actions.append('f2')
-        # actions.append('b2')
-
-        # Whole cube rotations
-        actions.append('x')
-        actions.append('xi')
-        actions.append('y')
-        actions.append('yi')
-        actions.append('z')
-        actions.append('zi')
-
-        # # Double whole cube rotations
-        # actions.append('x2')
-        # actions.append('y2')
-        # actions.append('z2')
 
         return actions
                     
     def successor(self, cube, action):
         # Make a copy of the current cube to avoid modifying it directly
         new_cube = deepcopy(cube)
-
+        
         # Execute the action using the execute function
         new_cube.execute(action)
 
@@ -531,39 +476,46 @@ class CrossSearch():
     def iterativeDeepening(self):
         depth = 0
         result = None
+        self.visited = set()
         while result is None:
+            print(depth)
+            self.visited.clear()
             result = self.depthLimited(self.cube, depth)
             depth += 1
         return result
 
     def depthLimited(self, state, depth):
         stack = []
-        stack.append(state)
+        stack.append((state, 0))  # Store the state and its depth
+
         while stack:
-            current_state = stack.pop()
+            current_state, current_depth = stack.pop()
 
             if self.goal_test(current_state):
                 return current_state
 
-            if current_state.depth < depth:
+            if current_depth < depth:
                 actions = self.possible_actions(current_state)
                 for action in actions:
                     new_state = self.successor(current_state, action)
-                    stack.append(new_state)
+                    if new_state not in self.visited:  # Check for loops
+                        stack.append((new_state, current_depth + 1))  # Increment the depth
+                        self.visited.add(new_state)  # Mark state as visited
 
         return None
 
 
 if __name__ == "__main__":
     cube = RubiksCube()
-    cube.display_cube2()
     cube.execute("B2 D2 B D2 U' B' L R' D U2 L2 U L B F'")
     cube.display_cube()
     cube.display_cube2()
+    print()
     
-    # search = CrossSearch(cube)
+    search = CrossSearch(cube)
+    cube.display_cube2()
 
-    # solution = search.iterativeDeepening()
+    solution = search.iterativeDeepening()
     # cube.display_cube2()
     
     
