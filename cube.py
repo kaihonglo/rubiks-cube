@@ -15,13 +15,21 @@ class RubiksCube:
             self.faces['B'] = list(sets[5])
         else:
             self.faces = {
-                'U': ['o1', 'o2', 'o3', 'o4', 'o5', 'o6', 'o7', 'o8', 'o9'],
-                'D': ['r1', 'r2', 'r3', 'r4', 'r5', 'r6', 'r7', 'r8', 'r9'],
-                'L': ['g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8', 'g9'],
-                'R': ['b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'b9'],
-                'F': ['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7', 'w8', 'w9'],
-                'B': ['y1', 'y2', 'y3', 'y4', 'y5', 'y6', 'y7', 'y8', 'y9'],
+                'U': ['o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o'],
+                'D': ['r', 'r', 'r', 'r', 'r', 'r', 'r', 'r', 'r'],
+                'L': ['g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g'],
+                'R': ['b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
+                'F': ['w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w'],
+                'B': ['y', 'y', 'y', 'y', 'y', 'y', 'y', 'y', 'y'],
             }
+            # self.faces = {
+            #     'U': ['o1', 'o2', 'o3', 'o4', 'o5', 'o6', 'o7', 'o8', 'o9'],
+            #     'D': ['r1', 'r2', 'r3', 'r4', 'r5', 'r6', 'r7', 'r8', 'r9'],
+            #     'L': ['g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8', 'g9'],
+            #     'R': ['b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'b9'],
+            #     'F': ['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7', 'w8', 'w9'],
+            #     'B': ['y1', 'y2', 'y3', 'y4', 'y5', 'y6', 'y7', 'y8', 'y9'],
+            # }
             
     def display_cube(self):
         # Display the Up face   
@@ -396,7 +404,7 @@ class RubiksCube:
 
 
     
-class CrossSearch():
+class Cross():
     def __init__(self, cube):
         self.cube = cube
         self.move_white_center_to_bottom(self.cube)
@@ -422,87 +430,43 @@ class CrossSearch():
 
         # Call the corresponding function based on the white center face
         switch.get(white_center_face, lambda: None)()
+        
+    def solve_cross(self, cube):
+        edges = {"L":{"sideCenter":cube.faces['L'][4], "sideEdge": cube.faces['L'][7], "botEdge": cube.faces['D'][3], "botCenter": cube.faces['D'][4]},
+                 "R":{"sideCenter":cube.faces['R'][4], "sideEdge": cube.faces['R'][7], "botEdge": cube.faces['D'][5], "botCenter": cube.faces['D'][4]},
+                 "F":{"sideCenter":cube.faces['F'][4], "sideEdge": cube.faces['F'][7], "botEdge": cube.faces['D'][1], "botCenter": cube.faces['D'][4]},
+                 "B":{"sideCenter":cube.faces['B'][4], "sideEdge": cube.faces['B'][7], "botEdge": cube.faces['D'][7], "botCenter": cube.faces['D'][4]},
+                }
+        
+        solved = all(face['botEdge'] == face['botCenter'] and face['sideEdge'] == face['sideCenter'] for face in edges.values())
+        solved_edges = [index for index, face in enumerate(edges) if face['botEdge'] == face['botCenter'] and face['sideEdge'] == face['sideCenter']]
+        
+        while not solved:
+            white_edges_at_bottom = []
+            white_edge_at_up = None
+            
+            # Check at bottom --> Move to Front and then Up
+            for i in range(1,8,2):
+                currentBotEdge = cube.faces['D'][i]
+                if currentBotEdge == 'w':
+                    pass
+            
+            # Check at Up
+            
+            
+            # At Up --> F2
+            
+            
+            # Check at side
+            # White can be at face[1/3/5/7]
+            # Move to Up 
+            
+            
+            # At Up --> F2
 
-
-    def heuristic(self, state):
-        # Calculate the count of misplaced edges
-        bottom_edge = [('D', 1), ('D', 3), ('D', 5), ('D', 7)]
-        side_edge = [('F', 7), ('L', 7), ('R', 7), ('7', 7)]
-        misplaced_edges_count = sum(state.faces[bottom_edge[i][0]][bottom_edge[i][1]] != state.faces[side_edge[i][0]][side_edge[i][1]] for i, _ in enumerate(bottom_edge))
-        return misplaced_edges_count
     
-    def possible_actions(self, cube):
-        # Define the possible actions that can be applied to the Rubik's Cube state
-        actions = []
 
-        # Clockwise Face Rotations
-        actions.append('U')
-        actions.append('D')
-        actions.append('L')
-        actions.append('R')
-        actions.append('F')
-        actions.append('B')
-
-        # Anti-clockwise Face Rotations
-        actions.append('Ui')
-        actions.append('Di')
-        actions.append('Li')
-        actions.append('Ri')
-        actions.append('Fi')
-        actions.append('Bi')
-
-
-        return actions
-                    
-    def successor(self, cube, action):
-        # Make a copy of the current cube to avoid modifying it directly
-        new_cube = deepcopy(cube)
-        
-        # Execute the action using the execute function
-        new_cube.execute(action)
-
-        return new_cube
-
-    def cost_function(self, state, action):
-        # All actions have equal cost in this case
-        return 1
-        
-    def goal_test(self, cube):
-        # Check if all cross edge pieces are correctly placed
-        bottom_edge = [('D', 1), ('D', 3), ('D', 5), ('D', 7)]
-        side_edge = [('F', 7), ('L', 7), ('R', 7), ('7', 7)]
-        return all(cube.faces[bottom_edge[i][0]][bottom_edge[i][1]] == cube.faces[side_edge[i][0]][side_edge[i][1]] for i,_ in enumerate(bottom_edge))
-
-    def iterativeDeepening(self):
-        depth = 0
-        result = None
-        self.visited = set()
-        while result is None:
-            print(depth)
-            self.visited.clear()
-            result = self.depthLimited(self.cube, depth)
-            depth += 1
-        return result
-
-    def depthLimited(self, state, depth):
-        stack = []
-        stack.append((state, 0))  # Store the state and its depth
-
-        while stack:
-            current_state, current_depth = stack.pop()
-
-            if self.goal_test(current_state):
-                return current_state
-
-            if current_depth < depth:
-                actions = self.possible_actions(current_state)
-                for action in actions:
-                    new_state = self.successor(current_state, action)
-                    if new_state not in self.visited:  # Check for loops
-                        stack.append((new_state, current_depth + 1))  # Increment the depth
-                        self.visited.add(new_state)  # Mark state as visited
-
-        return None
+    
 
 
 if __name__ == "__main__":
@@ -512,12 +476,11 @@ if __name__ == "__main__":
     cube.display_cube2()
     print()
     
-    search = CrossSearch(cube)
-    cube.display_cube2()
-
-    solution = search.iterativeDeepening()
+    # cross = Cross(cube)
+    # cross.solve_white_cross()
     # cube.display_cube2()
-    
+
+
     
 
     
