@@ -213,15 +213,15 @@ class RubiksCube:
     def Si(self):
         [self.S() for _ in range(3)]
         
+    """
+    Double turns
+    """       
     def U2(self):
         [self.U() for _ in range(2)]
        
-    def Di(self):
+    def D2(self):
         [self.D() for _ in range(2)]
-        
-    """
-    Double turns
-    """            
+             
     def L2(self): 
         [self.L() for _ in range(2)]
             
@@ -422,10 +422,9 @@ class RubiksCube:
 
 
     
-class Cross():
+class Solver():
     def __init__(self, cube):
         self.cube = cube
-        self.move_white_center_to_bottom(self.cube)
         
 
     def move_white_center_to_bottom(self, cube):
@@ -449,71 +448,52 @@ class Cross():
         # Call the corresponding function based on the white center face
         switch.get(white_center_face, lambda: None)()
         
-    def solve_cross(self, cube):
+    def C(self, cube):
+        self.move_white_center_to_bottom(cube)
+        
+        moves = {
+            'UF': {'U':"F2", 'F':"Ui Ri F R"},
+            'UR': {'U':"U F2", 'R':"Ri F R"},
+            'UB': {'U':"U2 F2", 'B':"U Ri F R"},
+            'UL': {'U':"Ui F2", 'L':"L Fi Li"},
+            'DF': {'D':"", 'F':"F2 Ui Ri F R"},
+            'DR': {'D':"R2 U F2", 'R':"R F"},
+            'DB': {'D':"B2 U2 F2", 'B':"B2 U Ri F R"},
+            'DL': {'D':"R2 Ui F2", 'L':"L Fi"},
+            'LF': {'L':"Fi", 'F':"F Ui Ri F R"},
+            'LB': {'L':"Bi U2 B F2", 'B':"L Ui Li F2"},
+            'RF': {'R':"F", 'F':"Fi Ui Ri F R"},
+            'RB': {'R':"B U2 Bi F2", 'B':"Ri U R F2"},
+        }
+        
+        for _ in range(4):
+            edge_locations = cube.get_edges().items()
+
+            # Accessing the locations
+            current_face_colour = cube.faces['F'][4]
+            
+            for edge, location in edge_locations:
+                if 'w' in location and current_face_colour in location:
+                    if 'w' == location[0]:
+                        white_at = edge[0]
+                    else:
+                        white_at = edge[1]
+                        
+                    break
+            
+            cube.execute(moves[edge][white_at])
+            
+            cube.di()
+            
         edges = {"L":{"sideCenter":cube.faces['L'][4], "sideEdge": cube.faces['L'][7], "botEdge": cube.faces['D'][3], "botCenter": cube.faces['D'][4], "adj":3},
                  "R":{"sideCenter":cube.faces['R'][4], "sideEdge": cube.faces['R'][7], "botEdge": cube.faces['D'][5], "botCenter": cube.faces['D'][4], "adj":5},
                  "F":{"sideCenter":cube.faces['F'][4], "sideEdge": cube.faces['F'][7], "botEdge": cube.faces['D'][1], "botCenter": cube.faces['D'][4], "adj":1},
                  "B":{"sideCenter":cube.faces['B'][4], "sideEdge": cube.faces['B'][7], "botEdge": cube.faces['D'][7], "botCenter": cube.faces['D'][4], "adj":7},
                 }
         
-        edge_locations = cube.get_edges().items()
+        solved = all(face['botEdge'] == face['botCenter'] and face['sideEdge'] == face['sideCenter'] for face in edges.values())
 
-        # Accessing the locations
-        current_face_colour = cube.faces['F'][4]
-        edge
-        
-        for edge, location in edge_locations:
-            if 'w' in location and current_face_colour in location:
-                edge = location
-        
-        # solved = all(face['botEdge'] == face['botCenter'] and face['sideEdge'] == face['sideCenter'] for face in edges.values())
-        
-        # # Check if solved
-        # current_face_colour = cube.faces['F'][4]
-        
-        # # Locate the edge
-        # edge_at_face = {"L":{1:"", 3:"", 5:"", 7:""},
-        #                 "R":{1:"", 3:"", 5:"", 7:""},
-        #                 "F":{1:"", 3:"", 5:"", 7:""},
-        #                 "B":{1:"", 3:"", 5:"", 7:""},
-        #                 }
-                
-        # # 
-
-        
-        
-        
-        # # while not solved:
-        # white_edge_at_bottom = None
-        # white_edge_at_up = None
-    
-        # solved_edges = [face['adj'] for face in edges.values() if face['botEdge'] == face['botCenter'] and face['sideEdge'] == face['sideCenter']]
-        
-        # # Check at bottom --> Move to Up
-        # white_edge_at_bottom = [i for i in range(1,8,2) if cube.faces['D'][i]  == 'w']
-        # for white_bottom in white_edge_at_bottom:
-        #     if white_bottom not in solved_edges:
-        #         if white_bottom == 1:
-        #             cube.F2()
-        #         elif white_bottom == 3:
-        #             cube.L2()
-        #         elif white_bottom == 5:
-        #             cube.R2()
-        #         elif white_bottom == 7:
-        #             cube.B2()
-                    
-        # # Check at Up
-        
-        
-        # # At Up --> F2
-        
-        
-        # # Check at side
-        # # White can be at face[1/3/5/7]
-        # # Move to Up 
-        
-        
-        # # At Up --> F2
+        return solved
 
     
 
@@ -528,11 +508,9 @@ if __name__ == "__main__":
     cube.display_cube2()
     print()
     
-    cross = Cross(cube)
-    cube.display_cube2()
-    print()
-    
-    cross.solve_cross(cube)
+    solver = Solver(cube)
+    x = solver.C(cube)
+    # print("Cross Solved: ", x)
     cube.display_cube2()
 
 
