@@ -380,6 +380,20 @@ class RubiksCube:
             'RB': (self.faces['R'][5], self.faces['B'][3])
         }
         return edge_locations
+    
+    def get_corners(self):
+        corner_locations = {
+            'UFR': (self.faces['U'][8], self.faces['F'][2], self.faces['R'][0]),
+            'UFL': (self.faces['U'][6], self.faces['F'][0], self.faces['L'][2]),
+            'UBR': (self.faces['U'][2], self.faces['B'][0], self.faces['R'][2]),
+            'UBL': (self.faces['U'][0], self.faces['B'][2], self.faces['L'][0]),
+            'DFR': (self.faces['D'][2], self.faces['F'][8], self.faces['R'][6]),
+            'DFL': (self.faces['D'][0], self.faces['F'][6], self.faces['L'][8]),
+            'DBR': (self.faces['D'][8], self.faces['B'][6], self.faces['R'][8]),
+            'DBL': (self.faces['D'][6], self.faces['B'][8], self.faces['L'][6])
+        }
+        
+        return corner_locations
         
     def execute(self, moves):
         moves = self.reformat_moves(moves)
@@ -494,6 +508,54 @@ class Solver():
         solved = all(face['botEdge'] == face['botCenter'] and face['sideEdge'] == face['sideCenter'] for face in edges.values())
 
         return solved
+    
+    def F(self, cube):
+        # Solve DFR corner
+        moves = {
+            'UFR': {'U':"Fi U F Ui R Ui Ri", 'F':"U R Ui Ri", 'R':"R U Ri"},
+            'UFL': {'U':"R U2 Ri U R Ui Ri", 'F':"Ui R U Ri", 'L':"R Ui Ri"},
+            'UBR': {'U':"Fi U2 F R U Ri", 'B':"Fi U F", 'R':"U2 R Ui Ri"},
+            'UBL': {'U':"R U Ri U R Ui Ri", 'B':"Ui R Ui Ri", 'L':"U Fi U F"},
+            'DFR': {'D':"", 'F':"R Ui Ri U R Ui Ri", 'R':"R U Ri Ui R U Ri"},
+            'DFL': {'D':"Li Ui L R U Ri", 'F':"Li U L Ui R U Ri", 'L':"Li Ui L U R Ui Ri"},
+            'DBR': {'D':"B U Bi U R Ui Ri", 'B':"B Ui Bi R U Ri", 'R':"Ri U2 R R Ui Ri"},
+            'DBL': {'D':"Bi Ui B Ui R U Ri", 'B':"Bi Ui B R Ui R", 'L':"L U2 Li R U Ri"},
+        }
+        
+        for _ in range(4):
+            corner_locations = cube.get_corners().items()  
+
+            # Accessing the locations
+            current_face_colour = cube.faces['F'][4]
+            current_right_colour = cube.faces['R'][4]
+            
+            for corner, location in corner_locations:
+                if 'w' in location and current_face_colour in location and current_right_colour in location:
+                    if 'w' == location[0]:
+                        white_at = corner[0]
+                    elif 'w' == location[1]:
+                        white_at = corner[1]
+                    else:
+                        white_at = corner[2]
+                        
+                    break
+            
+            print(moves[corner][white_at])
+            
+            cube.display_cube2()
+            cube.execute(moves[corner][white_at])
+            
+            cube.di()
+        
+        first_layer_solved = len(set(cube.faces['D'])) == 1 and all(cube.faces[face][i] == cube.faces[face][4] for face in ['L', 'F', 'R', 'B'] for i in range(6,9))
+
+        # Solve FR edge
+        edge_locations = cube.get_edges().items()
+        
+        
+        
+        
+        # print(corner_locations)
 
     
 
@@ -509,8 +571,13 @@ if __name__ == "__main__":
     print()
     
     solver = Solver(cube)
-    x = solver.C(cube)
-    # print("Cross Solved: ", x)
+    c = solver.C(cube)
+    # print("Cross Solved: ", c)
+    cube.display_cube2()
+    
+    
+    f = solver.F(cube)
+    # print("F2L Solved: ", f)
     cube.display_cube2()
 
 
