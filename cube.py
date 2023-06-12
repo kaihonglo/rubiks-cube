@@ -583,7 +583,27 @@ class Solver():
         return solved
 
     
-
+    def O(self, cube):
+        # Solve edge
+        move = "F R U Ri Ui Fi f R U Ri Ui fi"
+        for _ in range(4):
+            if all(cube.faces['U'][i] == cube.faces['U'][4] for i in range(1,9,2)):
+                break
+            elif all(cube.faces['U'][i] == cube.faces['U'][4] for i in range(3,6,2)):
+                move = "F R U Ri Ui Fi"
+                break
+            elif all(cube.faces['U'][i] == cube.faces['U'][4] for i in range(5,9,2)):
+                move = "f R U Ri Ui fi"
+                break
+            
+            cube.U()
+        
+        cube.execute(move)
+            
+        
+        
+        # Solve corner
+        pass
     
 
 
@@ -599,10 +619,15 @@ if __name__ == "__main__":
     c = solver.C(cube)
     # print("Cross Solved: ", c)
     cube.display_cube2()
-    
+    print()
     
     f = solver.F(cube)
     # print("F2L Solved: ", f)
+    cube.display_cube2()
+    print()
+    
+    o = solver.O(cube)
+    # print("OLL Solved: ", o)
     cube.display_cube2()
 
 
