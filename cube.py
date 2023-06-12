@@ -540,9 +540,6 @@ class Solver():
                         
                     break
             
-            print(moves[corner][white_at])
-            
-            cube.display_cube2()
             cube.execute(moves[corner][white_at])
             
             cube.di()
@@ -550,12 +547,40 @@ class Solver():
         first_layer_solved = len(set(cube.faces['D'])) == 1 and all(cube.faces[face][i] == cube.faces[face][4] for face in ['L', 'F', 'R', 'B'] for i in range(6,9))
 
         # Solve FR edge
-        edge_locations = cube.get_edges().items()
+        moves = {
+            'UF': {'U':"y Ui Ui Li U L U F Ui Fi yi", 'F':"U R Ui Ri Ui Fi U F"},
+            'UR': {'U':"y Ui Li U L U F Ui Fi yi", 'R':"U U R Ui Ri Ui Fi U F"},
+            'UB': {'U':"y Li U L U F Ui Fi yi", 'B':"Ui R Ui Ri Ui Fi U F"},
+            'UL': {'U':"y U Li U L U F Ui Fi yi", 'L':"R Ui Ri Ui Fi U F"},
+            'LF': {'L':"Li U L U F Ui Fi Ui R Ui Ri Ui Fi U F", 'F':"Li U L U F Ui Fi y Li U L U F Ui Fi yi"},
+            'LB': {'L':"d Li U L U F Ui Fi di y Li U L U F Ui Fi yi", 'B':"d Li U L U F Ui Fi di Ui R Ui Ri Ui Fi U F"},
+            'RF': {'R':"R Ui R Ui Fi U F Ui R Ui Ri Ui Fi U F", 'F':""},
+            'RB': {'R':"y R Ui Ri Ui Fi U F U Li U L U F Ui Fi yi", 'B':"y R Ui Ri Ui Fi U F yi R Ui Ri Ui Fi U F"},
+        }
         
+        for _ in range(4):
+            edge_locations = cube.get_edges().items()
+
+            # Accessing the locations
+            current_face_colour = cube.faces['F'][4]
+            current_right_colour = cube.faces['R'][4]
+            
+            for edge, location in edge_locations:
+                if current_face_colour in location and current_right_colour in location:
+                    if current_face_colour == location[0]:
+                        face_colour_at = edge[0]
+                    else:
+                        face_colour_at = edge[1]
+                        
+                    break
+            
+            cube.execute(moves[edge][face_colour_at])
+            
+            cube.di()
         
+        solved = len(set(cube.faces['D'])) == 1 and all(cube.faces[face][i] == cube.faces[face][4] for face in ['L', 'F', 'R', 'B'] for i in range(3,9))
         
-        
-        # print(corner_locations)
+        return solved
 
     
 
