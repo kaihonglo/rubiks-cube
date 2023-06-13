@@ -588,6 +588,7 @@ class Solver():
         move = "F R U Ri Ui Fi f R U Ri Ui fi"
         for _ in range(4):
             if all(cube.faces['U'][i] == cube.faces['U'][4] for i in range(1,9,2)):
+                move = ""
                 break
             elif all(cube.faces['U'][i] == cube.faces['U'][4] for i in range(3,6,2)):
                 move = "F R U Ri Ui Fi"
@@ -603,7 +604,43 @@ class Solver():
         
         
         # Solve corner
-        pass
+        move = ""
+        for _ in range(4):
+            if all(cube.faces['U'][i] == cube.faces['U'][4] for i in range(1,9)):
+                move = ""
+                break
+            elif cube.faces['U'][2] == cube.faces['U'][4] and cube.faces['L'][0] == cube.faces['U'][4] and \
+                cube.faces['F'][0] == cube.faces['U'][4] and cube.faces['R'][0] == cube.faces['U'][4]:
+                move = "R U2 Ri Ui R Ui Ri"
+                break
+            elif cube.faces['U'][0] == cube.faces['U'][4] and cube.faces['L'][2] == cube.faces['U'][4] and \
+                cube.faces['F'][2] == cube.faces['U'][4] and cube.faces['R'][2] == cube.faces['U'][4]:
+                move = "Li U2 L Ui Li Ui L"
+                break
+            elif cube.faces['L'][0] == cube.faces['U'][4] and cube.faces['L'][2] == cube.faces['U'][4] and \
+                cube.faces['R'][0] == cube.faces['U'][4] and cube.faces['R'][2] == cube.faces['U'][4]:
+                move = "R U Ri U R Ui Ri U R U2 Ri"
+                break
+            elif cube.faces['U'][0] == cube.faces['U'][4] and cube.faces['U'][8] == cube.faces['U'][4] and \
+                cube.faces['F'][0] == cube.faces['U'][4] and cube.faces['R'][2] == cube.faces['U'][4]:
+                move = "F Ri Fi r U R Ui ri"
+                break
+            elif cube.faces['L'][0] == cube.faces['U'][4] and cube.faces['L'][2] == cube.faces['U'][4] and \
+                cube.faces['F'][2] == cube.faces['U'][4] and cube.faces['B'][0] == cube.faces['U'][4]:
+                move = "R U2 R2 Ui R2 Ui R2 U2 R"
+                break
+            elif cube.faces['U'][2] == cube.faces['U'][4] and cube.faces['U'][8] == cube.faces['U'][4] and \
+                cube.faces['F'][0] == cube.faces['U'][4] and cube.faces['B'][2] == cube.faces['U'][4]:
+                move = "r U Ri Ui ri F R Fi"
+                break
+            elif cube.faces['U'][0] == cube.faces['U'][4] and cube.faces['U'][2] == cube.faces['U'][4] and \
+                cube.faces['R'][0] == cube.faces['U'][4] and cube.faces['R'][2] == cube.faces['U'][4]:
+                move = "R U2 Ri Ui R Ui Ri Li U2 L Ui Li Ui L"
+                break
+            
+            cube.U()
+        
+        cube.execute(move)
     
 
 
