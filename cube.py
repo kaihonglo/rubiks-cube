@@ -1,5 +1,14 @@
 class RubiksCube:
-    def __init__(self, initial_state = None):
+    def __init__(self, initial_state = None, scramble = None):
+        """
+        Initializes a new Rubik's Cube object.
+
+        Args:
+            initial_state (str): Optional. A string representing the initial state of the cube.
+                                 If not provided, a solved cube is created.
+                                 The string should contain 9*6=54 characters representing the colors of each face.
+                                 The characters should be in the order: U, D, L, R, F, B.
+        """
         self.faces = {}
         if initial_state:
             # Split the string into sets of 9
@@ -13,6 +22,7 @@ class RubiksCube:
             self.faces['F'] = list(sets[4])
             self.faces['B'] = list(sets[5])
         else:
+            # Initialize with default solved cube configuration
             self.faces = {
                 'U': ['o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o'],
                 'D': ['r', 'r', 'r', 'r', 'r', 'r', 'r', 'r', 'r'],
@@ -21,17 +31,15 @@ class RubiksCube:
                 'F': ['w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w'],
                 'B': ['y', 'y', 'y', 'y', 'y', 'y', 'y', 'y', 'y'],
             }
-            # self.faces = {
-            #     'U': ['o1', 'o2', 'o3', 'o4', 'o5', 'o6', 'o7', 'o8', 'o9'],
-            #     'D': ['r1', 'r2', 'r3', 'r4', 'r5', 'r6', 'r7', 'r8', 'r9'],
-            #     'L': ['g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8', 'g9'],
-            #     'R': ['b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'b9'],
-            #     'F': ['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7', 'w8', 'w9'],
-            #     'B': ['y1', 'y2', 'y3', 'y4', 'y5', 'y6', 'y7', 'y8', 'y9'],
-            # }
-            
-            
+        
+        if scramble:
+            self.execute(scramble)
+                       
     def display(self):
+        """
+        Displays the current state of the cube in a text-based format.
+        """
+        
         # Display the Up face   
         print('         ' + ' '.join(self.faces['U'][0:3]))
         print('         ' + ' '.join(self.faces['U'][3:6]))
@@ -48,6 +56,9 @@ class RubiksCube:
         print('         ' + ' '.join(self.faces['D'][6:9]))
         
     def display2(self):
+        """
+        Displays the current state of the cube using Unicode characters to represent the colors.
+        """
         mapping = {
             'w1': '⬜', 'w2': '⬜', 'w3': '⬜',
             'w4': '⬜', 'w5': '⬜', 'w6': '⬜',
@@ -105,7 +116,7 @@ class RubiksCube:
     Clockwise Face Rotations
     """
     def U(self):
-        # Rotate the U face clockwise
+        # Rotate the Up (U) face clockwise
         self.faces['U'] = [self.faces['U'][6], self.faces['U'][3], self.faces['U'][0],
                            self.faces['U'][7], self.faces['U'][4], self.faces['U'][1],
                            self.faces['U'][8], self.faces['U'][5], self.faces['U'][2]]
@@ -115,7 +126,7 @@ class RubiksCube:
             self.faces['F'][0:3], self.faces['L'][0:3], self.faces['B'][0:3], self.faces['R'][0:3]
     
     def D(self):
-        # Rotate the Down face clockwise
+        # Rotate the Down (D) face clockwise
         self.faces['D'] = [self.faces['D'][6], self.faces['D'][3], self.faces['D'][0],
                            self.faces['D'][7], self.faces['D'][4], self.faces['D'][1],
                            self.faces['D'][8], self.faces['D'][5], self.faces['D'][2]]
@@ -125,7 +136,7 @@ class RubiksCube:
             self.faces['B'][6:9], self.faces['R'][6:9], self.faces['F'][6:9], self.faces['L'][6:9]
             
     def L(self): 
-        # Rotate the Left face clockwise
+        # Rotate the Left (L) face clockwise
         self.faces['L'] = [self.faces['L'][6], self.faces['L'][3], self.faces['L'][0],
                            self.faces['L'][7], self.faces['L'][4], self.faces['L'][1],
                            self.faces['L'][8], self.faces['L'][5], self.faces['L'][2]]
@@ -135,7 +146,7 @@ class RubiksCube:
             self.faces['B'][2:9:3][::-1], self.faces['U'][0:9:3], self.faces['F'][0:9:3], self.faces['D'][0:9:3][::-1]
             
     def R(self):
-        # Rotate the Right face clockwise
+        # Rotate the Right (R) face clockwise
         self.faces['R'] = [self.faces['R'][6], self.faces['R'][3], self.faces['R'][0],
                            self.faces['R'][7], self.faces['R'][4], self.faces['R'][1],
                            self.faces['R'][8], self.faces['R'][5], self.faces['R'][2]]
@@ -145,7 +156,7 @@ class RubiksCube:
             self.faces['F'][2:9:3], self.faces['D'][2:9:3], self.faces['B'][0:9:3][::-1], self.faces['U'][2:9:3][::-1]
 
     def F(self):
-        # Rotate the Front face clockwise
+        # Rotate the Front (F) face clockwise
         self.faces['F'] = [self.faces['F'][6], self.faces['F'][3], self.faces['F'][0],
                            self.faces['F'][7], self.faces['F'][4], self.faces['F'][1],
                            self.faces['F'][8], self.faces['F'][5], self.faces['F'][2]]
@@ -155,7 +166,7 @@ class RubiksCube:
             self.faces['L'][8:1:-3], self.faces['U'][6:9], self.faces['R'][0:9:3][::-1], self.faces['D'][0:3][::-1]
 
     def B(self):
-        # Rotate the Back face clockwise
+        # Rotate the Back (B) face clockwise
         self.faces['B'] = [self.faces['B'][6], self.faces['B'][3], self.faces['B'][0],
                            self.faces['B'][7], self.faces['B'][4], self.faces['B'][1],
                            self.faces['B'][8], self.faces['B'][5], self.faces['B'][2]]
@@ -168,105 +179,131 @@ class RubiksCube:
     Slice Turns
     """
     def M(self):
+        # Rotates the middle slice of the cube clockwise (between L and R faces)
         self.faces['F'][1:9:3], self.faces['U'][1:9:3], self.faces['B'][1:9:3], self.faces['D'][1:9:3] = \
             self.faces['U'][1:9:3], self.faces['B'][1:9:3][::-1], self.faces['D'][1:9:3][::-1], self.faces['F'][1:9:3]
     
     def E(self):
+        # Rotates the equatorial slice of the cube clockwise (between U and D faces)
         self.faces['L'][3:6], self.faces['B'][3:6], self.faces['R'][3:6], self.faces['F'][3:6] = \
             self.faces['B'][3:6], self.faces['R'][3:6], self.faces['F'][3:6], self.faces['L'][3:6]
             
     def S(self):
+        # Rotates the standing slice of the cube clockwise (between F and B faces)
         self.faces['U'][3:6], self.faces['R'][1:9:3], self.faces['D'][3:6], self.faces['L'][1:9:3] = \
             self.faces['L'][1:9:3][::-1], self.faces['U'][3:6], self.faces['R'][1:9:3][::-1], self.faces['D'][3:6]
 
     """
-    Anti-clockwise Face Rotations
+    Anticlockwise Face Rotations
     """
     def Ui(self):
+        # Rotate the Up (U) face anticlockwise
         [self.U() for _ in range(3)]
        
     def Di(self):
+        # Rotate the Down (D) face anticlockwise
         [self.D() for _ in range(3)]
             
     def Li(self): 
+        # Rotate the Left (L) face anticlockwise
         [self.L() for _ in range(3)]
             
     def Ri(self):
+        # Rotate the Right (R) face anticlockwise
         [self.R() for _ in range(3)]
 
     def Fi(self):
+        # Rotate the Face (F) face anticlockwise
         [self.F() for _ in range(3)]
         
     def Bi(self):
+        # Rotate the Back (B) face anticlockwise
         [self.B() for _ in range(3)]
 
     """
-    Anti-clockwise Slice Turns
+    Anticlockwise Slice Turns
     """
     def Mi(self):
+        # Rotates the middle slice of the cube anticlockwise (between L and R faces)
         [self.M() for _ in range(3)]    
         
     def Ei(self):
+        # Rotates the equatorial slice of the cube anticlockwise (between U and D faces)
         [self.E() for _ in range(3)]      
               
     def Si(self):
+        # Rotates the standing slice of the cube anticlockwise (between F and B faces)
         [self.S() for _ in range(3)]
         
     """
     Double turns
     """       
     def U2(self):
+        # Rotate the Up (U) face twice
         [self.U() for _ in range(2)]
        
     def D2(self):
+        # Rotate the Down (D) face twice
         [self.D() for _ in range(2)]
              
     def L2(self): 
+        # Rotate the Left (L) face twice
         [self.L() for _ in range(2)]
             
     def R2(self):
+        # Rotate the Right (R) face twice
         [self.R() for _ in range(2)]
 
     def F2(self):
+        # Rotate the Front (F) face twice
         [self.F() for _ in range(2)]
         
     def B2(self):
+        # Rotate the Back (B) face twice
         [self.B() for _ in range(2)]
         
     def M2(self):
+        # Rotates the middle slice of the cube twice (between L and R faces)
         [self.M() for _ in range(2)]    
         
     def E2(self):
+        # Rotates the equatorial slice of the cube twice (between U and D faces)
         [self.E() for _ in range(2)]      
               
     def S2(self):
+        # Rotates the standing slice of the cube twice (between F and B faces)
         [self.S() for _ in range(2)]
         
-
     """
     Double layer turns
-    """        
+    """   
     def u(self):
+        # Perform a clockwise double layer turn on the upper layer
         self.U()
         self.Ei()
-       
+
     def d(self):
+        # Perform a clockwise double layer turn on the lower layer
         self.D()
         self.E()
-            
+
     def l(self): 
+        # Perform a clockwise double layer turn on the left layer
         self.L()
         self.M()
-            
+
     def r(self):
+        # Perform a clockwise double layer turn on the right layer
         self.R()
         self.Mi()
 
     def f(self):
+        # Perform a clockwise double layer turn on the front layer
         self.F()
         self.S()
-        
+
     def b(self):
+        # Perform a clockwise double layer turn on the back layer
         self.B()
         self.Si()
 
@@ -274,26 +311,32 @@ class RubiksCube:
     Inverse double layer turns
     """     
     def ui(self):
+        # Perform an anticlockwise double layer turn on the upper layer
         self.Ui()
         self.E()
-       
+
     def di(self):
+        # Perform an anticlockwise double layer turn on the lower layer
         self.Di()
         self.Ei()
-            
+
     def li(self): 
+        # Perform an anticlockwise double layer turn on the left layer
         self.Li()
         self.Mi()
-            
+
     def ri(self):
+        # Perform an anticlockwise double layer turn on the right layer 
         self.Ri()
         self.M()
 
     def fi(self):
+        # Perform an anticlockwise double layer turn on the front layer
         self.Fi()
         self.Si()
-        
+
     def bi(self):
+        # Perform an anticlockwise double layer turn on the back layer
         self.Bi()
         self.S()        
 
@@ -301,53 +344,65 @@ class RubiksCube:
     2x double layer turns
     """     
     def u2(self):
+        # Perform a double layer turn twice on the upper layer
         [self.U() for _ in range(2)]
         [self.Ei() for _ in range(2)]
-       
+
     def d2(self):
+        # Perform a double layer turn twice on the lower layer
         [self.D() for _ in range(2)]
         [self.E() for _ in range(2)]
-            
+
     def l2(self): 
+        # Perform a double layer turn twice on the left layer
         [self.L() for _ in range(2)]
         [self.M() for _ in range(2)]
-            
+
     def r2(self):
+        # Perform a double layer turn twice on the right layer
         [self.R() for _ in range(2)]
         [self.Mi() for _ in range(2)]
 
     def f2(self):
+        # Perform a double layer turn twice on the front layer
         [self.F() for _ in range(2)]
         [self.S() for _ in range(2)]
-        
+
     def b2(self):
+        # Perform a double layer turn twice on the back layer
         [self.B() for _ in range(2)]
-        [self.Si() for _ in range(2)]       
+        [self.Si() for _ in range(2)]
 
     """
     Whole cube rotations
     """     
     def x(self):
+        # Perform a whole cube rotation following the R direction
         self.li()
         self.R()
 
     def xi(self):
+        # Perform a whole cube rotation following the R' direction
         self.l()
         self.Ri()
-        
+
     def y(self):
+        # Perform a whole cube rotation following the U direction
         self.u()
         self.Di()
 
     def yi(self):
+        # Perform a whole cube rotation following the U' direction
         self.ui()
         self.D()
-        
+
     def z(self):
+        # Perform a whole cube rotation following the F direction
         self.f()
         self.Bi()        
-        
+
     def zi(self):
+        # Perform a whole cube rotation following the F' direction
         self.fi()
         self.B()
 
@@ -355,15 +410,24 @@ class RubiksCube:
     Double whole cube rotations
     """     
     def x2(self):
+        # Perform a double whole cube rotation following the R direction
         [self.X() for _ in range(2)]
-        
+
     def y2(self):
+        # Perform a double whole cube rotation following the U direction
         [self.Y() for _ in range(2)]
-        
+
     def z2(self):
-        [self.Z() for _ in range(2)]     
-        
+        # Perform a double whole cube rotation following the F direction
+        [self.Z() for _ in range(2)]
+         
     def get_edges(self):
+        """
+        Returns a dictionary mapping edge locations to their corresponding facelet positions.
+
+        Returns:
+            edge_locations (dict): Dictionary mapping edge locations to their corresponding facelet positions.
+        """
         edge_locations = {
             'UF': (self.faces['U'][7], self.faces['F'][1]),
             'UR': (self.faces['U'][5], self.faces['R'][1]),
@@ -381,6 +445,12 @@ class RubiksCube:
         return edge_locations
     
     def get_corners(self):
+        """
+        Returns a dictionary mapping corner locations to their corresponding facelet positions.
+
+        Returns:
+            corner_locations (dict): Dictionary mapping corner locations to their corresponding facelet positions.
+        """
         corner_locations = {
             'UFR': (self.faces['U'][8], self.faces['F'][2], self.faces['R'][0]),
             'UFL': (self.faces['U'][6], self.faces['F'][0], self.faces['L'][2]),
@@ -395,6 +465,13 @@ class RubiksCube:
         return corner_locations
         
     def execute(self, moves):
+        """
+        Executes a series of moves on the cube based on the provided move sequence.
+
+        Args:
+            moves (str): A sequence of moves to be executed on the cube.
+
+        """
         moves = self.reformat_moves(moves)
         move_actions = {
             'F': self.F,
@@ -433,23 +510,79 @@ class RubiksCube:
         # cube.display2()
                     
     def reformat_moves(self, moves):
+        """
+        Reformats the move sequence by removing spaces and replacing "'" with "i" to represent inverse moves.
+
+        Args:
+            moves (str): The move sequence to be reformatted.
+
+        Returns:
+            reformatted (str): The reformatted move sequence.
+
+        """
         reformatted = moves.replace(" ", "").replace("'", "i")
         return reformatted
     
     def get_state(self):
+        """
+        Retrieves the current state of the cube as a string by concatenating facelets of all faces.
+
+        Returns:
+            state (str): The current state of the cube.
+
+        """
         return ''.join(''.join(self.faces[face]) for face in ['U', 'D', 'L', 'R', 'F', 'B'])
     
     def is_solved(self):
+        """
+        Checks if the cube is solved by verifying if all faces have only one unique color.
+
+        Returns:
+            is_solved (bool): True if the cube is solved, False otherwise.
+
+        """
         return all(len(set(face)) == 1 for face in self.faces.values())
 
     
-    
 class Solver():
+    """
+    The Solver class provides methods to solve a Rubik's Cube using a layer-by-layer approach.
+    It implements methods for solving the cross, first two layers (F2L), orientation of the last layer (OLL),
+    and permutation of the last layer (PLL).
+
+    Methods:
+    - move_white_center_to_bottom(cube): Moves the white center piece to the bottom layer.
+    - Cross(cube): Solves the cross on the bottom layer.
+    - F2L(cube): Solves the first two layers of the Rubik's Cube.
+    - OLL(cube): Orient the last layer.
+    - PLL(cube): Permute the last layer.
+    - solve(cube): Solves the Rubik's Cube using a layer-by-layer approach.
+
+    """
+    
     def __init__(self, cube):
+        """
+        Initializes a Solver object with a Rubik's Cube.
+
+        Parameters:
+        - cube (Cube): The Rubik's Cube object to solve.
+        """
         self.cube = cube
         
 
     def move_white_center_to_bottom(self, cube):
+        """
+        Moves the white center piece to the bottom layer.
+
+        Parameters:
+        - cube (Cube): The Rubik's Cube object.
+
+        This method finds the face of the white center piece and rotates the cube accordingly.
+
+        Returns:
+        None
+        """
+        
         # Find the face of the white center piece
         white_center_face = None
         for face, stickers in cube.faces.items():
@@ -471,6 +604,19 @@ class Solver():
         switch.get(white_center_face, lambda: None)()
         
     def Cross(self, cube):
+        """
+        Solves the cross on the bottom layer of the Rubik's Cube.
+
+        Parameters:
+        - cube (Cube): The Rubik's Cube object.
+
+        This method solves the cross by finding the edge pieces with white and the face color,
+        and executing the corresponding moves to position and orient them correctly.
+
+        Returns:
+        bool: True if the cross is solved, False otherwise.
+        """
+        
         self.move_white_center_to_bottom(cube)
         
         moves = {
@@ -518,6 +664,19 @@ class Solver():
         return solved
     
     def F2L(self, cube):
+        """
+        Solves the first two layers (F2L) of the Rubik's Cube.
+
+        Parameters:
+        - cube (Cube): The Rubik's Cube object.
+
+        This method solves the first two layers by finding the corner and edge pieces with white and face colors,
+        and executing the corresponding moves to position and orient them correctly.
+
+        Returns:
+        bool: True if the first two layers are solved, False otherwise.
+        """
+        
         # Solve DFR corner
         moves = {
             'UFR': {'U':"Fi U F Ui R Ui Ri", 'F':"U R Ui Ri", 'R':"R U Ri"},
@@ -592,6 +751,19 @@ class Solver():
 
     
     def OLL(self, cube):
+        """
+        Solves the orientation of the last layer (2 look OLL) of the Rubik's Cube.
+
+        Parameters:
+        - cube (Cube): The Rubik's Cube object.
+
+        This method solves the orientation of the last layer by executing the appropriate algorithm based on
+        the pattern of the edges and corners on the top layer.
+
+        Returns:
+        bool: True if the orientation of the last layer is solved, False otherwise.
+        """
+
         # Solve edge
         move = "F R U Ri Ui Fi f R U Ri Ui fi"
         for _ in range(4):
@@ -653,6 +825,19 @@ class Solver():
         return len(set(cube.faces['U'])) == 1 and len(set(cube.faces['D'])) == 1 and all(cube.faces[face][i] == cube.faces[face][4] for face in ['L', 'F', 'R', 'B'] for i in range(3,9))
         
     def PLL(self, cube):
+        """
+        Solves the permutation of the last layer (2 Look PLL) of the Rubik's Cube.
+
+        Parameters:
+        - cube (Cube): The Rubik's Cube object.
+
+        This method solves the permutation of the last layer by executing the appropriate algorithm based on
+        the pattern of the edges and corners on the top layer.
+
+        Returns:
+        bool: True if the permutation of the last layer is solved, False otherwise.
+        """
+        
         # Solve corner
         same_corners_at_face = sum(cube.faces[face][0] == cube.faces[face][2] for face in ['L', 'F', 'R', 'B'])
         
@@ -702,6 +887,19 @@ class Solver():
         return cube.is_solved()
     
     def solve(self,cube):
+        """
+        Solves the Rubik's Cube using the CFOP method.
+
+        Parameters:
+        - cube (Cube): The Rubik's Cube object.
+
+        This method solves the Rubik's Cube by invoking the Cross, F2L, OLL, and PLL methods
+        in the appropriate order until the cube is completely solved.
+
+        Returns:
+        bool: True if the Rubik's Cube is solved, False otherwise.
+        """
+        
         cube.display2()
         
         c = self.Cross(cube)
@@ -728,17 +926,20 @@ class Solver():
 
 class Tester:
     def __init__(self):
-        self.initial_states = [
+        self.scrambles = [
+            
         ]
         
         
     def test_solver(self):
-        for initial_state in self.initial_states:
-            cube = RubiksCube(initial_state)
+        for scramble in self.scrambles:
+            cube = RubiksCube(scramble = scramble)
+            initial_state = cube.get_state()
             print(f"Initial state: {initial_state}")
             
             solver = Solver(cube)
             solver.solve(cube)
+            final_state = cube.get_state()
             print()
             
             
@@ -755,8 +956,8 @@ if __name__ == "__main__":
     # solver = Solver(cube)
     # solver.solve(cube)
     
-    # tester = Tester()
-    # tester.test_solver()
+    tester = Tester()
+    tester.test_solver()
 
 
 
