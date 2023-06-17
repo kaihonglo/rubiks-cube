@@ -411,15 +411,15 @@ class RubiksCube:
     """     
     def x2(self):
         # Perform a double whole cube rotation following the R direction
-        [self.X() for _ in range(2)]
+        [self.x() for _ in range(2)]
 
     def y2(self):
         # Perform a double whole cube rotation following the U direction
-        [self.Y() for _ in range(2)]
+        [self.y() for _ in range(2)]
 
     def z2(self):
         # Perform a double whole cube rotation following the F direction
-        [self.Z() for _ in range(2)]
+        [self.z() for _ in range(2)]
          
     def get_edges(self):
         """
@@ -560,13 +560,14 @@ class Solver():
 
     """
     
-    def __init__(self, cube):
+    def __init__(self, cube, debug = 0):
         """
         Initializes a Solver object with a Rubik's Cube.
 
         Parameters:
         - cube (Cube): The Rubik's Cube object to solve.
         """
+        self.DEBUG = debug
         self.cube = cube
         
 
@@ -627,7 +628,7 @@ class Solver():
             'DF': {'D':"", 'F':"F2 Ui Ri F R"},
             'DR': {'D':"R2 U F2", 'R':"R F"},
             'DB': {'D':"B2 U2 F2", 'B':"B2 U Ri F R"},
-            'DL': {'D':"R2 Ui F2", 'L':"L Fi"},
+            'DL': {'D':"L2 Ui F2", 'L':"Li Fi"},
             'LF': {'L':"Fi", 'F':"F Ui Ri F R"},
             'LB': {'L':"Bi U2 B F2", 'B':"L Ui Li F2"},
             'RF': {'R':"F", 'F':"Fi Ui Ri F R"},
@@ -649,7 +650,10 @@ class Solver():
                         
                     break
             
+            # if self.DEBUG: print("CROSS"); cube.display2(); print()
+            
             cube.execute(moves[edge][white_at])
+
             
             cube.di()
             
@@ -685,8 +689,8 @@ class Solver():
             'UBL': {'U':"R U Ri U R Ui Ri", 'B':"Ui R Ui Ri", 'L':"U Fi U F"},
             'DFR': {'D':"", 'F':"R Ui Ri U R Ui Ri", 'R':"R U Ri Ui R U Ri"},
             'DFL': {'D':"Li Ui L R U Ri", 'F':"Li U L Ui R U Ri", 'L':"Li Ui L U R Ui Ri"},
-            'DBR': {'D':"B U Bi U R Ui Ri", 'B':"B Ui Bi R U Ri", 'R':"Ri U2 R R Ui Ri"},
-            'DBL': {'D':"Bi Ui B Ui R U Ri", 'B':"Bi Ui B R Ui R", 'L':"L U2 Li R U Ri"},
+            'DBR': {'D':"B U Bi U R Ui Ri", 'B':"B U Bi R U Ri", 'R':"Ri U2 R R Ui Ri"},
+            'DBL': {'D':"Bi Ui B Ui R U Ri", 'B':"Bi Ui B R Ui Ri", 'L':"L U2 Li R U Ri"},
         }
         
         for _ in range(4):
@@ -707,12 +711,14 @@ class Solver():
                         
                     break
             
+            if self.DEBUG: print("First Layer"); cube.display2(); print()
+            
             cube.execute(moves[corner][white_at])
             
             cube.di()
         
         first_layer_solved = len(set(cube.faces['D'])) == 1 and all(cube.faces[face][i] == cube.faces[face][4] for face in ['L', 'F', 'R', 'B'] for i in range(6,9))
-
+        
         # Solve FR edge
         moves = {
             'UF': {'U':"y Ui Ui Li U L U F Ui Fi yi", 'F':"U R Ui Ri Ui Fi U F"},
@@ -741,12 +747,12 @@ class Solver():
                         
                     break
             
+            if self.DEBUG: print("Second Layer"); cube.display2(); print()
             cube.execute(moves[edge][face_colour_at])
             
             cube.di()
         
         solved = len(set(cube.faces['D'])) == 1 and all(cube.faces[face][i] == cube.faces[face][4] for face in ['L', 'F', 'R', 'B'] for i in range(3,9))
-        
         return solved
 
     
@@ -779,6 +785,7 @@ class Solver():
             
             cube.U()
         
+        if self.DEBUG: print("OLL 1"); cube.display2(); print()
         cube.execute(move)
             
         
@@ -795,7 +802,7 @@ class Solver():
                 break
             elif cube.faces['U'][0] == cube.faces['U'][4] and cube.faces['L'][2] == cube.faces['U'][4] and \
                 cube.faces['F'][2] == cube.faces['U'][4] and cube.faces['R'][2] == cube.faces['U'][4]:
-                move = "Li U2 L Ui Li Ui L"
+                move = "Li U2 L U Li U L"
                 break
             elif cube.faces['L'][0] == cube.faces['U'][4] and cube.faces['L'][2] == cube.faces['U'][4] and \
                 cube.faces['R'][0] == cube.faces['U'][4] and cube.faces['R'][2] == cube.faces['U'][4]:
@@ -813,13 +820,14 @@ class Solver():
                 cube.faces['F'][0] == cube.faces['U'][4] and cube.faces['B'][2] == cube.faces['U'][4]:
                 move = "r U Ri Ui ri F R Fi"
                 break
-            elif cube.faces['U'][0] == cube.faces['U'][4] and cube.faces['U'][2] == cube.faces['U'][4] and \
+            elif cube.faces['U'][0] == cube.faces['U'][4] and cube.faces['U'][6] == cube.faces['U'][4] and \
                 cube.faces['R'][0] == cube.faces['U'][4] and cube.faces['R'][2] == cube.faces['U'][4]:
-                move = "R U2 Ri Ui R Ui Ri Li U2 L Ui Li Ui L"
+                move = "R U2 Ri Ui R Ui Ri Li U2 L U Li U L"
                 break
             
             cube.U()
         
+        if self.DEBUG: print("OLL 2"); cube.display2(); print()
         cube.execute(move)
         
         return len(set(cube.faces['U'])) == 1 and len(set(cube.faces['D'])) == 1 and all(cube.faces[face][i] == cube.faces[face][4] for face in ['L', 'F', 'R', 'B'] for i in range(3,9))
@@ -841,6 +849,8 @@ class Solver():
         # Solve corner
         same_corners_at_face = sum(cube.faces[face][0] == cube.faces[face][2] for face in ['L', 'F', 'R', 'B'])
         
+        if self.DEBUG: print("PLL 1"); cube.display2(); print()
+        
         if same_corners_at_face == 0:
             cube.execute("F R Ui Ri Ui R U Ri Fi R U Ri Ui Ri F R Fi")
         elif same_corners_at_face == 1:
@@ -861,11 +871,15 @@ class Solver():
         # Solve edge
         solved_edges = sum(cube.faces[face][0] == cube.faces[face][1] for face in ['L', 'F', 'R', 'B'])
         
-        if solved_edges == 0:
+        if self.DEBUG: print("PLL 2"); cube.display2(); print()
+
+        if solved_edges == 0:    
             if cube.faces['F'][1] == cube.faces['B'][0]:
-                cube.execute("M2 U M2 U2 M2 U M2")
+                cube.execute("M2 Ui M2 U2 M2 Ui M2")
             else:
-                cube.execute("Mi U M2 U M2 U Mi U2 M2")
+                if cube.faces['F'][1] != cube.faces['R'][4]:
+                    cube.y()
+                cube.execute("Mi Ui M2 Ui M2 Ui Mi U2 M2")
         elif solved_edges == 1:
             for _ in range(3):
                 if cube.faces['B'][0] == cube.faces['B'][1]:
@@ -878,7 +892,7 @@ class Solver():
                 cube.execute("R2 U R U Ri Ui Ri Ui Ri U Ri")
         else:
             pass
-            
+        
         for _ in range(3):
             if all(cube.faces[face][i] == cube.faces[face][4] for face in ['L', 'F', 'R', 'B'] for i in range(0,3)):
                 break
@@ -886,7 +900,7 @@ class Solver():
         
         return cube.is_solved()
     
-    def solve(self,cube):
+    def solve(self,cube,display = False):
         """
         Solves the Rubik's Cube using the CFOP method.
 
@@ -900,64 +914,151 @@ class Solver():
         bool: True if the Rubik's Cube is solved, False otherwise.
         """
         
-        cube.display2()
+        if display: cube.display2()
         
         c = self.Cross(cube)
-        cube.display2()
-        print("Cross Solved: ", c)
-        print()
+        if display: 
+            cube.display2()
+            print("Cross Solved: ", c)
+            print()
         
         f = self.F2L(cube)
-        cube.display2()
-        print("F2L Solved: ", f)
-        print()
+        if display: 
+            cube.display2()
+            print("F2L Solved: ", f)
+            print()
         
         o = self.OLL(cube)
-        cube.display2()
-        print("OLL Solved: ", o)
-        print()
+        if display: 
+            cube.display2()
+            print("OLL Solved: ", o)
+            print()
         
         p = self.PLL(cube)
-        cube.display2()
-        print("PLL Solved: ", p)
-        print()
+        if display: 
+            cube.display2()
+            print("PLL Solved: ", p)
+            print()
+        
+        return c,f,o,p
         
     
-
+import random
 class Tester:
     def __init__(self):
         self.scrambles = [
+                        "R U R' U R U2 R' U' R U' R' U' R U R' U R U2 R' U'",
+                        "F' L F L' F' L F L' F' L F L' F' L F L'",
+                        "y R U R' U R U' R' U R U R' U R U2 R' U' y'",
+                        "x' R U R' U R U' R' U R U R' U R U2 R' U' x",
+                        "z D' R' D R D' R' D R D' R' D R D' R' D R z'",
+                        "U R U' R' U R U' R' U R U' R' U R U' R' U R U' R' U",
+                        "F U R U' R' F' R U R' U' R' F R F'",
+                        "R U R' U R U2 R' U' R U' R' U' R U R' U R U2 R' U'",
+                        "U' R U2 R' U' R U2 R' U' R U2 R' U' R U2 R'",
+                        "L' U' L U' L' U2 L U L' U L U L' U2 L U'",
+                        "x R U R' U' x' R U R' U' R' F R F'",
+                        "z D' R U' R' D R U R' D' R U R' D R U' R' z'",
+                        "U R U R' U' R' U' R U' R' U R U R2 U2 R' U'",
+                        "R U2 R' U' R U' R' U R U R' U' R U' R'",
+                        "F R U R' U' F' R U R' U' R' F R F'",
+                        "L F' L' U' L U F U' L' U L F' L' F",
+                        "R U2 R' U' R U R' U2 R U' R' U' R U2 R' U'",
+                        "D R' U' R D' R' U' R D R' U' R D' R' U R D",
+                        "y x' R U R' U' R U R' U' R U R' U' R U R' x y'",
+                        "F R U R' U' F' U R U' R'"
+                    ]
+        
+
+
+    def generate_scrambles(self, num_scrambles):
+        moves = ["R", "R'", "R2", "L", "L'", "L2", "U", "U'", "U2", "D", "D'", "D2",
+                "F", "F'", "F2", "B", "B'", "B2", "M", "M'", "M2", "E", "E'", "E2",
+                "S", "S'", "S2", "x", "x'", "x2", "y", "y'", "y2", "z", "z'", "z2"]
+        scrambles = []
+
+        for _ in range(num_scrambles):
+            scramble_length = random.randint(20, 30)
+            scramble = ""
+
+            for _ in range(scramble_length):
+                move = random.choice(moves)
+                scramble += move + " "
+
+            scrambles.append(scramble.strip())
+
+        return scrambles
+    
+    def test_solver(self, n_test = 10, debug = 0):
+        self.scrambles = self.generate_scrambles(n_test)
+        total_tests = len(self.scrambles)
+        tests_passed = 0
+        
+        for i, scramble in enumerate(self.scrambles, 1):
             
-        ]
-        
-        
-    def test_solver(self):
-        for scramble in self.scrambles:
-            cube = RubiksCube(scramble = scramble)
+            cube = RubiksCube(scramble=scramble)
             initial_state = cube.get_state()
-            print(f"Initial state: {initial_state}")
             
             solver = Solver(cube)
-            solver.solve(cube)
+            c,f,o,p = solver.solve(cube)
             final_state = cube.get_state()
-            print()
+            
+            solved = cube.is_solved()
+            status = "PASS" if solved else "FAILED"
+            
+            
+            if solved:
+                tests_passed += 1
+            else:
+                if debug >= 1: 
+                    print(f"Testing scramble {i}: {scramble}      ({status})")
+                    print(f"C-{c}   F-{f}   O-{o}   P-{p}")
+                    if debug == 2:
+                        print("Initial State: ")
+                        RubiksCube(initial_state=initial_state).display2()
+                        print()
+                        print("Final State: ")
+                        RubiksCube(initial_state=final_state).display2()
+            
+            
+                print()
+            
+        print(f"Tests ran: {total_tests}, Passed: {tests_passed}, Failed: {total_tests - tests_passed}")
+            
+                
+            
+            
             
             
 
 if __name__ == "__main__":
     pass
-    # cube = RubiksCube()
-    # cube.execute("B2 D2 B D2 U' B' L R' D U2 L2 U L B F'")
-    # cube.execute("L' R' B2 F2 L D B R D2 R2 D' U2 F2 L F'")
+    cube = RubiksCube()
+    cube.execute("")
+    # cube.execute("")
+    
     # cube.display()
     # cube.display2()
     # print()
     
-    # solver = Solver(cube)
-    # solver.solve(cube)
+    # solver = Solver(cube, debug = 1)
+    # solver.Cross(cube)
+    # # cube.display2()
+    # # print()
+    # solver.F2L(cube)
+    # # cube.display2()
+    # # print()
+    # solver.OLL(cube)
+    # # cube.display2()
+    # # print()
+    # solver.PLL(cube)
+    # print("FINAL")
+    # cube.display2()
+    # print()
+    
     
     tester = Tester()
-    tester.test_solver()
+    tester.test_solver(n_test = 100, debug=1)
 
 
 
