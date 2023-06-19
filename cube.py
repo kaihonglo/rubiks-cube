@@ -1,3 +1,4 @@
+import random, time
 class RubiksCube:
     def __init__(self, initial_state = None, scramble = None):
         """
@@ -543,7 +544,27 @@ class RubiksCube:
         """
         return all(len(set(face)) == 1 for face in self.faces.values())
 
+    def scramble(self):
+        """
+        Scramble the cube by generating a random scramble
+
+        """
+        moves = ["R", "R'", "R2", "L", "L'", "L2", "U", "U'", "U2", "D", "D'", "D2",
+                "F", "F'", "F2", "B", "B'", "B2", "M", "M'", "M2", "E", "E'", "E2",
+                "S", "S'", "S2", "x", "x'", "x2", "y", "y'", "y2", "z", "z'", "z2"]
+
+        scramble_length = random.randint(10, 20)
+        scramble = ""
+
+        for _ in range(scramble_length):
+            move = random.choice(moves)
+            scramble += move + " "
+
+        self.execute(scramble)
+        
+        return scramble
     
+      
 class Solver():
     """
     The Solver class provides methods to solve a Rubik's Cube using a layer-by-layer approach.
@@ -618,8 +639,10 @@ class Solver():
         bool: True if the cross is solved, False otherwise.
         """
         
+        # If there is white stickers, move it to bottom (not required)
         self.move_white_center_to_bottom(cube)
         
+        # Moves the execute based on the position and location of the edge
         moves = {
             'UF': {'U':"F2", 'F':"Ui Ri F R"},
             'UR': {'U':"U F2", 'R':"Ri F R"},
@@ -635,6 +658,7 @@ class Solver():
             'RB': {'R':"B U2 Bi F2", 'B':"Ri U R F2"},
         }
         
+        # Loop 4 times for 4 edges in the bottom
         for _ in range(4):
             edge_locations = cube.get_edges().items()
 
@@ -650,11 +674,12 @@ class Solver():
                         
                     break
             
-            # if self.DEBUG: print("CROSS"); cube.display2(); print()
+            if self.DEBUG: print("CROSS"); cube.display2(); print()
             
+            # Execute the move
             cube.execute(moves[edge][white_at])
 
-            
+            # Rotate the bottom face to solve for next edge
             cube.di()
             
         edges = {"L":{"sideCenter":cube.faces['L'][4], "sideEdge": cube.faces['L'][7], "botEdge": cube.faces['D'][3], "botCenter": cube.faces['D'][4], "adj":3},
@@ -663,6 +688,7 @@ class Solver():
                  "B":{"sideCenter":cube.faces['B'][4], "sideEdge": cube.faces['B'][7], "botEdge": cube.faces['D'][7], "botCenter": cube.faces['D'][4], "adj":7},
                 }
         
+        # Check if bottom cross is solved
         solved = all(face['botEdge'] == face['botCenter'] and face['sideEdge'] == face['sideCenter'] for face in edges.values())
 
         return solved
@@ -693,18 +719,21 @@ class Solver():
             'DBL': {'D':"Bi Ui B Ui R U Ri", 'B':"Bi Ui B R Ui Ri", 'L':"L U2 Li R U Ri"},
         }
         
+        # Loop 4 times for 4 corners in the bottom
         for _ in range(4):
             corner_locations = cube.get_corners().items()  
 
             # Accessing the locations
             current_face_colour = cube.faces['F'][4]
             current_right_colour = cube.faces['R'][4]
+            current_bottom_colour = cube.faces['D'][4]
             
+            # Find the location of the corner with bottom, front, and right sticker
             for corner, location in corner_locations:
-                if 'w' in location and current_face_colour in location and current_right_colour in location:
-                    if 'w' == location[0]:
+                if current_bottom_colour in location and current_face_colour in location and current_right_colour in location:
+                    if current_bottom_colour == location[0]:
                         white_at = corner[0]
-                    elif 'w' == location[1]:
+                    elif current_bottom_colour == location[1]:
                         white_at = corner[1]
                     else:
                         white_at = corner[2]
@@ -713,8 +742,10 @@ class Solver():
             
             if self.DEBUG: print("First Layer"); cube.display2(); print()
             
+            # Execute the move
             cube.execute(moves[corner][white_at])
             
+            # Rotate the bottom face to solve for next corner
             cube.di()
         
         first_layer_solved = len(set(cube.faces['D'])) == 1 and all(cube.faces[face][i] == cube.faces[face][4] for face in ['L', 'F', 'R', 'B'] for i in range(6,9))
@@ -731,6 +762,7 @@ class Solver():
             'RB': {'R':"y R Ui Ri Ui Fi U F U Li U L U F Ui Fi yi", 'B':"y R Ui Ri Ui Fi U F yi R Ui Ri Ui Fi U F"},
         }
         
+        # Loop 4 times for 4 edges on the second layer
         for _ in range(4):
             edge_locations = cube.get_edges().items()
 
@@ -748,8 +780,11 @@ class Solver():
                     break
             
             if self.DEBUG: print("Second Layer"); cube.display2(); print()
+            
+            # Execute the move
             cube.execute(moves[edge][face_colour_at])
             
+            # Rotate the bottom face to solve for next corner
             cube.di()
         
         solved = len(set(cube.faces['D'])) == 1 and all(cube.faces[face][i] == cube.faces[face][4] for face in ['L', 'F', 'R', 'B'] for i in range(3,9))
@@ -770,15 +805,22 @@ class Solver():
         bool: True if the orientation of the last layer is solved, False otherwise.
         """
 
-        # Solve edge
-        move = "F R U Ri Ui Fi f R U Ri Ui fi"
+        # Step 1) Solve for top cross
+        
+        # Dot (default move, no patterns)
+        move = "F R U Ri Ui Fi f R U Ri Ui fi" 
+        
+        # Rotate until pattern found
         for _ in range(4):
+            # Cross (solved)
             if all(cube.faces['U'][i] == cube.faces['U'][4] for i in range(1,9,2)):
                 move = ""
                 break
+            # Line
             elif all(cube.faces['U'][i] == cube.faces['U'][4] for i in range(3,6,2)):
                 move = "F R U Ri Ui Fi"
                 break
+            # L shape
             elif all(cube.faces['U'][i] == cube.faces['U'][4] for i in range(5,9,2)):
                 move = "f R U Ri Ui fi"
                 break
@@ -790,36 +832,46 @@ class Solver():
             
         
         
-        # Solve corner
+        # Step 2) Solve for top face (not layer)
         move = ""
+        
+        # Rotate until pattern found
         for _ in range(4):
+            # Solved (do nothing)
             if all(cube.faces['U'][i] == cube.faces['U'][4] for i in range(1,9)):
                 move = ""
                 break
+            # Antisune
             elif cube.faces['U'][2] == cube.faces['U'][4] and cube.faces['L'][0] == cube.faces['U'][4] and \
                 cube.faces['F'][0] == cube.faces['U'][4] and cube.faces['R'][0] == cube.faces['U'][4]:
                 move = "R U2 Ri Ui R Ui Ri"
                 break
+            # Sune
             elif cube.faces['U'][0] == cube.faces['U'][4] and cube.faces['L'][2] == cube.faces['U'][4] and \
                 cube.faces['F'][2] == cube.faces['U'][4] and cube.faces['R'][2] == cube.faces['U'][4]:
                 move = "Li U2 L U Li U L"
                 break
+            # H
             elif cube.faces['L'][0] == cube.faces['U'][4] and cube.faces['L'][2] == cube.faces['U'][4] and \
                 cube.faces['R'][0] == cube.faces['U'][4] and cube.faces['R'][2] == cube.faces['U'][4]:
                 move = "R U Ri U R Ui Ri U R U2 Ri"
                 break
+            # L
             elif cube.faces['U'][0] == cube.faces['U'][4] and cube.faces['U'][8] == cube.faces['U'][4] and \
                 cube.faces['F'][0] == cube.faces['U'][4] and cube.faces['R'][2] == cube.faces['U'][4]:
                 move = "F Ri Fi r U R Ui ri"
                 break
+            # Pi
             elif cube.faces['L'][0] == cube.faces['U'][4] and cube.faces['L'][2] == cube.faces['U'][4] and \
                 cube.faces['F'][2] == cube.faces['U'][4] and cube.faces['B'][0] == cube.faces['U'][4]:
                 move = "R U2 R2 Ui R2 Ui R2 U2 R"
                 break
+            # T
             elif cube.faces['U'][2] == cube.faces['U'][4] and cube.faces['U'][8] == cube.faces['U'][4] and \
                 cube.faces['F'][0] == cube.faces['U'][4] and cube.faces['B'][2] == cube.faces['U'][4]:
                 move = "r U Ri Ui ri F R Fi"
                 break
+            # Headlight
             elif cube.faces['U'][0] == cube.faces['U'][4] and cube.faces['U'][6] == cube.faces['U'][4] and \
                 cube.faces['R'][0] == cube.faces['U'][4] and cube.faces['R'][2] == cube.faces['U'][4]:
                 move = "R U2 Ri Ui R Ui Ri Li U2 L U Li U L"
@@ -846,37 +898,46 @@ class Solver():
         bool: True if the permutation of the last layer is solved, False otherwise.
         """
         
-        # Solve corner
+        # Step 1) Solve corners of the last layer
+        
+        # Get number of same corners on a face
         same_corners_at_face = sum(cube.faces[face][0] == cube.faces[face][2] for face in ['L', 'F', 'R', 'B'])
         
         if self.DEBUG: print("PLL 1"); cube.display2(); print()
         
         if same_corners_at_face == 0:
+            # Diagonal Corner Swap
             cube.execute("F R Ui Ri Ui R U Ri Fi R U Ri Ui Ri F R Fi")
         elif same_corners_at_face == 1:
             for _ in range(3):
                 if cube.faces['L'][0] == cube.faces['L'][2]:
                     break
                 cube.U()
-            
+            # Adjacent Corner Swap
             cube.execute("R U Ri Ui Ri F R2 Ui Ri Ui R U Ri Fi")
         else:
+            # Already solved
             pass
-            
+        
+        # Align last layer to match faces
         for _ in range(3):
             if all(cube.faces[face][i] == cube.faces[face][4] for face in ['L', 'F', 'R', 'B'] for i in [0,2]):
                 break
             cube.U()
             
-        # Solve edge
+        # Step 2) Solve edges of the last layer
+        
+        # Get number of same corners on a face
         solved_edges = sum(cube.faces[face][0] == cube.faces[face][1] for face in ['L', 'F', 'R', 'B'])
         
         if self.DEBUG: print("PLL 2"); cube.display2(); print()
-
+        
         if solved_edges == 0:    
             if cube.faces['F'][1] == cube.faces['B'][0]:
+                # Opposite Edge Swap
                 cube.execute("M2 Ui M2 U2 M2 Ui M2")
             else:
+                # Diagonal Edge Swap
                 if cube.faces['F'][1] != cube.faces['R'][4]:
                     cube.y()
                 cube.execute("Mi Ui M2 Ui M2 Ui Mi U2 M2")
@@ -885,14 +946,17 @@ class Solver():
                 if cube.faces['B'][0] == cube.faces['B'][1]:
                     break
                 cube.U()
-                
             if cube.faces['F'][1] == cube.faces['R'][0]:
+                # 3 Edge Cycle #1
                 cube.execute("R Ui R U R U R Ui Ri Ui R2")
             else:
+                # 3 Edge Cycle #2
                 cube.execute("R2 U R U Ri Ui Ri Ui Ri U Ri")
         else:
+            # Already solved
             pass
         
+        # Align last layer to match faces
         for _ in range(3):
             if all(cube.faces[face][i] == cube.faces[face][4] for face in ['L', 'F', 'R', 'B'] for i in range(0,3)):
                 break
@@ -914,38 +978,48 @@ class Solver():
         bool: True if the Rubik's Cube is solved, False otherwise.
         """
         
-        if display: cube.display2()
+        if display:
+            print("INITIAL state") 
+            cube.display2()
         
+        if display: print("Solving Cross")
         c = self.Cross(cube)
         if display: 
+            print("Result:")
             cube.display2()
-            print("Cross Solved: ", c)
-            print()
+        print("Cross Solved: ", c)
+        print()
         
+        if display: print("Solving F2L")
         f = self.F2L(cube)
         if display: 
+            print("Result:")
             cube.display2()
-            print("F2L Solved: ", f)
-            print()
+        print("F2L Solved: ", f)
+        print()
         
+        if display: print("Solving OLL")
         o = self.OLL(cube)
         if display: 
+            print("Result:")
             cube.display2()
-            print("OLL Solved: ", o)
-            print()
+        print("OLL Solved: ", o)
+        print()
         
+        if display: print("Solving PLL")
         p = self.PLL(cube)
         if display: 
+            print("FINAL State:")
             cube.display2()
-            print("PLL Solved: ", p)
-            print()
+        print("PLL Solved: ", p)
+        print()
         
         return c,f,o,p
         
-    
-import random
+
 class Tester:
-    def __init__(self):
+    def __init__(self, debug = 0):
+        self.debug = debug
         self.scrambles = [
                         "R U R' U R U2 R' U' R U' R' U' R U R' U R U2 R' U'",
                         "F' L F L' F' L F L' F' L F L' F' L F L'",
@@ -978,7 +1052,7 @@ class Tester:
         scrambles = []
 
         for _ in range(num_scrambles):
-            scramble_length = random.randint(20, 30)
+            scramble_length = random.randint(10, 20)
             scramble = ""
 
             for _ in range(scramble_length):
@@ -989,10 +1063,12 @@ class Tester:
 
         return scrambles
     
-    def test_solver(self, n_test = 10, debug = 0):
+    def test_solver(self, n_test = 10):
         self.scrambles = self.generate_scrambles(n_test)
         total_tests = len(self.scrambles)
         tests_passed = 0
+        
+        durations = []
         
         for i, scramble in enumerate(self.scrambles, 1):
             
@@ -1010,10 +1086,10 @@ class Tester:
             if solved:
                 tests_passed += 1
             else:
-                if debug >= 1: 
+                if self.debug >= 1: 
                     print(f"Testing scramble {i}: {scramble}      ({status})")
                     print(f"C-{c}   F-{f}   O-{o}   P-{p}")
-                    if debug == 2:
+                    if self.debug == 2:
                         print("Initial State: ")
                         RubiksCube(initial_state=initial_state).display2()
                         print()
@@ -1026,39 +1102,37 @@ class Tester:
         print(f"Tests ran: {total_tests}, Passed: {tests_passed}, Failed: {total_tests - tests_passed}")
             
                 
-            
-            
-            
-            
-
 if __name__ == "__main__":
-    pass
+    """
+    Example Usage
+    """
+    
+    # Initialise the cube with a initial state
     cube = RubiksCube()
-    cube.execute("")
-    # cube.execute("")
     
-    # cube.display()
-    # cube.display2()
-    # print()
+    # Randomly scramble the cube (10-20 moves)
+    scramble = cube.scramble()
+    print(f"Scramble Used: {scramble}\n")
     
-    # solver = Solver(cube, debug = 1)
-    # solver.Cross(cube)
-    # # cube.display2()
-    # # print()
-    # solver.F2L(cube)
-    # # cube.display2()
-    # # print()
-    # solver.OLL(cube)
-    # # cube.display2()
-    # # print()
-    # solver.PLL(cube)
-    # print("FINAL")
-    # cube.display2()
-    # print()
+    # Initialise the solver
+    solver = Solver(cube)
     
+    # Solve the cube
+    start_time = time.time()
     
-    tester = Tester()
-    tester.test_solver(n_test = 100, debug=1)
+    c, f, o, p = solver.solve(cube, display=True)
+    
+    end_time = time.time()
+    solve_time = end_time - start_time
+
+    print(f"Cube Solved: {cube.is_solved()}")
+    print(f"Time Taken: {solve_time:.5f} seconds")
+    
+    """
+    Testing
+    """
+    # tester = Tester(debug = 1)
+    # tester.test_solver(n_test = 1000)
 
 
 
